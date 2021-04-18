@@ -4,7 +4,6 @@ import com.udacity.jdnd.course3.critter.pet.PetType;
 import org.hibernate.annotations.Nationalized;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Entity
@@ -13,13 +12,14 @@ public class Pet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "customer")
+    private Customer customer;
+
     private PetType type;
     @Nationalized
     private String name;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    @NotNull
-    private Customer owner;
     private LocalDate birthDate;
     private String notes;
 
@@ -61,12 +61,12 @@ public class Pet {
         this.name = name;
     }
 
-    public Customer getOwner() {
-        return owner;
+    public Customer getCustomer() {
+        return customer;
     }
 
-    public void setOwner(Customer owner) {
-        this.owner = owner;
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
     }
 
     public LocalDate getBirthDate() {

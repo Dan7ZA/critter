@@ -4,11 +4,11 @@ import org.hibernate.annotations.Nationalized;
 
 import javax.persistence.*;
 
-@Entity
-@Inheritance(strategy = InheritanceType.JOINED)
+//@Entity
+//@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class User {
 
-    @Id
+ /*   @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -31,5 +31,5 @@ public abstract class User {
 
     public void setName(String name) {
         this.name = name;
-    }
+    }*/
 }
