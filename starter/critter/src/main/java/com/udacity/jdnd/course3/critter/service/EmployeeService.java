@@ -4,11 +4,13 @@ import com.udacity.jdnd.course3.critter.entity.Customer;
 import com.udacity.jdnd.course3.critter.entity.Employee;
 import com.udacity.jdnd.course3.critter.entity.User;
 import com.udacity.jdnd.course3.critter.repository.EmployeeRepository;
+import com.udacity.jdnd.course3.critter.user.EmployeeSkill;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.DayOfWeek;
+import java.util.List;
 import java.util.Set;
 
 @Transactional
@@ -29,4 +31,13 @@ public class EmployeeService {
     public void setAvailability(Set<DayOfWeek> daysAvailable, Long employeeId){
         employeeRepository.getOne(employeeId).setDaysAvailable(daysAvailable);
     }
+
+    public List<Employee> findEmployeesBySkill(EmployeeSkill employeeSkill){
+        return employeeRepository.findBySkills(employeeSkill);
+    }
+
+    public List<Employee> findEmployeesByDaysAvailable(DayOfWeek requestedDay){
+        return employeeRepository.findByDaysAvailable(requestedDay);
+    }
+
 }

@@ -8,13 +8,16 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
+@Table(name = "SCHEDULE")
 public class Schedule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @ManyToMany(targetEntity = Employee.class)
+    @Column(name="SCHEDULE_EMPLOYEES")
     private List<Employee> employees;
+    @Column(name="SCHEDULE_PETS")
     @ManyToMany(targetEntity = Pet.class)
     private List<Pet> pets;
     private LocalDate date;

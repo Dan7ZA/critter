@@ -2,7 +2,9 @@ package com.udacity.jdnd.course3.critter.user;
 
 import com.udacity.jdnd.course3.critter.entity.Customer;
 import com.udacity.jdnd.course3.critter.entity.Employee;
+import com.udacity.jdnd.course3.critter.entity.Pet;
 import com.udacity.jdnd.course3.critter.entity.User;
+import com.udacity.jdnd.course3.critter.schedule.ScheduleController;
 import com.udacity.jdnd.course3.critter.service.CustomerService;
 import com.udacity.jdnd.course3.critter.service.EmployeeService;
 import com.udacity.jdnd.course3.critter.service.PetService;
@@ -11,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,7 +42,7 @@ public class UserController {
     @PostMapping("/customer")
     public CustomerDTO saveCustomer(@RequestBody CustomerDTO customerDTO){
         // Create a new customer object & convert the dto to customer in order to save it.
-        Customer newCustomer = this.customerService.saveCustomer(this.convertCustomerDTOtoCustomer(customerDTO));
+        Customer newCustomer = customerService.saveCustomer(this.convertCustomerDTOtoCustomer(customerDTO));
         // Update customer with newly created ID
         customerDTO.setId(newCustomer.getId());
         return customerDTO;
@@ -57,10 +61,8 @@ public class UserController {
 
     @GetMapping("/customer/pet/{petId}")
     public CustomerDTO getOwnerByPet(@PathVariable long petId){
-        //Retrieve customer by Pet ID
-        //CustomerDTO customerDTO = convertCustomerToCustomerDTO((Customer) this.userService.getOwnerByPet(petId));
-        //return customerDTO;
-        throw new UnsupportedOperationException();
+        //Find Pet object using petId, retrieve Customer object from Pet object and the pass to DTO convertor
+        return convertCustomerToCustomerDTO(petService.findPet(petId).getCustomer());
     }
 
     @PostMapping("/employee")
@@ -87,8 +89,45 @@ public class UserController {
 
     @GetMapping("/employee/availability")
     public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeDTO) {
-        throw new UnsupportedOperationException();
+        //Create list of requested skills
+        Set<EmployeeSkill> requestedSkills = employeeDTO.getSkills();
+        //Initialise list of employees
+        List<Employee> employeeListSkills = new ArrayList<>();
+
+        requestedSkills.forEach((employeeSkill) ->
+                employeeListSkills.addAll(employeeService.findEmployeesBySkill(employeeSkill)));
+
+        //Remove duplicates caused by employee having more than one of the request skills
+        Set<Employee> set = new HashSet<>(employeeListSkills);
+        employeeListSkills.clear();
+        employeeListSkills.addAll(set);
+
+        //Get requested date
+        LocalDate requestedDate = employeeDTO.getDate();
+        //Get day of requested date
+        DayOfWeek requestedDay = requestedDate.getDayOfWeek();
+
+        //Initialise list to hold employees with availability within list with requested skills
+        List<Employee> employeeListSkillsAndAvailability = new ArrayList<>();
+
+        //Look for employees with availability within list with requested skills
+        for (Employee employee: employeeListSkills) {
+            Set<DayOfWeek> daysAvailable = employee.getDaysAvailable();
+            if (daysAvailable.contains(requestedDay)){
+                employeeListSkillsAndAvailability.add(employee);
+            }
+        }
+
+        //employeeListSkillsAndAvailability = employeeService.findEmployeesByDaysAvailable(requestedDay);
+
+        List<EmployeeDTO> employeeDTOList = employeeListSkillsAndAvailability.stream()
+                .map(UserController::convertEmployeeToEmployeeDTO)
+                .collect(Collectors.toList());
+
+        return employeeDTOList;
     }
+
+    //helper methods
 
     private Customer convertCustomerDTOtoCustomer(CustomerDTO customerDTO) {
         Customer customer = new Customer();
@@ -115,7 +154,7 @@ public class UserController {
         return employee;
     }
 
-    private EmployeeDTO convertEmployeeToEmployeeDTO(Employee employee){
+    private static EmployeeDTO convertEmployeeToEmployeeDTO(Employee employee){
         EmployeeDTO employeeDTO = new EmployeeDTO();
         BeanUtils.copyProperties(employee, employeeDTO);
         return employeeDTO;

@@ -54,12 +54,17 @@ public class PetController {
 
     @GetMapping("/owner/{ownerId}")
     public List<PetDTO> getPetsByOwner(@PathVariable long ownerId) {
-        //Initialise employee object from DB
-        //Employee employee = (Employee) this.userService.findEmployee(employeeId);
-        //Convert to employee object to employeeDTO & return
+        //Get list of Pet objects by ownerId
+        List <Pet> customerPets = petService.findPetsByOwner(ownerId);
+        //Convert list of Pet objects to list of PetDTO objects
+        List<PetDTO> customerPetsDTO = customerPets.stream()
+                .map(PetController::convertPetToPetDTO)
+                .collect(Collectors.toList());
 
-        throw new UnsupportedOperationException();
+        return customerPetsDTO;
     }
+
+    //helper methods
 
     private Pet convertPetDTOToPet(PetDTO petDTO) {
         Pet pet = new Pet();
@@ -70,8 +75,10 @@ public class PetController {
     }
 
     private static PetDTO convertPetToPetDTO(Pet pet){
+        Long ownerId = pet.getCustomer().getId();
         PetDTO petDTO = new PetDTO();
         BeanUtils.copyProperties(pet, petDTO);
+        petDTO.setOwnerId(ownerId);
         return petDTO;
     }
 
