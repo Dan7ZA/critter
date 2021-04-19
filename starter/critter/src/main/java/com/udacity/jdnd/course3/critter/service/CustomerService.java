@@ -41,11 +41,4 @@ public class CustomerService {
         customerRepository.save(customer);
     }
 
-        /*public User getOwnerByPet(Long petId){
-        try {
-            return userRepository.findByPet(petId);
-        } catch (Exception e){
-            return null;
-        }
-    }*/
 }
