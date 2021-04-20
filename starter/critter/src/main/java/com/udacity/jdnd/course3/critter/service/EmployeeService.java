@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -40,4 +43,22 @@ public class EmployeeService {
         return employeeRepository.findByDaysAvailable(requestedDay);
     }
 
+    public List<Employee> getEmployeesForService(DayOfWeek requestedDay, Set<EmployeeSkill> requestedSkills){
+
+        List<Employee> availableEmployeesWithOneOfTheSkills = employeeRepository.findEmployeesByDaysAvailableAndSkillsIn(requestedDay, requestedSkills);
+        List<Employee> availableEmployeesWithAllOfTheSkills = new ArrayList<>();
+
+        //Remove duplicates caused by employee having more than one of the request skills
+        Set<Employee> set = new HashSet<>(availableEmployeesWithOneOfTheSkills);
+        availableEmployeesWithOneOfTheSkills.clear();
+        availableEmployeesWithOneOfTheSkills.addAll(set);
+
+        //Find employees with all of the requested skills
+        for (Employee e : availableEmployeesWithOneOfTheSkills){
+            if(e.getSkills().containsAll(requestedSkills)){
+                availableEmployeesWithAllOfTheSkills.add(e);
+            }
+        }
+        return availableEmployeesWithAllOfTheSkills;
+    }
 }

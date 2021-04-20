@@ -2,7 +2,6 @@ package com.udacity.jdnd.course3.critter;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.udacity.jdnd.course3.critter.config.H2DatabaseConfig;
 import com.udacity.jdnd.course3.critter.pet.PetController;
 import com.udacity.jdnd.course3.critter.pet.PetDTO;
 import com.udacity.jdnd.course3.critter.pet.PetType;
@@ -99,9 +98,14 @@ public class CritterFunctionalTest {
         PetDTO petDTO = createPetDTO();
         petDTO.setOwnerId(newCustomer.getId());
         PetDTO newPet = petController.savePet(petDTO);
-        petDTO.setType(PetType.DOG);
+
+        PetDTO petDTO2 = createPetDTO();
+        petDTO2.setOwnerId(newCustomer.getId());
+        PetDTO newPet2 = petController.savePet(petDTO2);
+
+        /*petDTO.setType(PetType.DOG);
         petDTO.setName("DogName");
-        PetDTO newPet2 = petController.savePet(petDTO);
+        PetDTO newPet2 = petController.savePet(petDTO);*/
 
         List<PetDTO> pets = petController.getPetsByOwner(newCustomer.getId());
         Assertions.assertEquals(pets.size(), 2);
@@ -138,23 +142,29 @@ public class CritterFunctionalTest {
 
     @Test
     public void testFindEmployeesByServiceAndTime() {
+        //createEmployeeDTO method creates DTO with name and feeding and petting skills
         EmployeeDTO emp1 = createEmployeeDTO();
         EmployeeDTO emp2 = createEmployeeDTO();
         EmployeeDTO emp3 = createEmployeeDTO();
 
+        //set days available
         emp1.setDaysAvailable(Sets.newHashSet(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY));
         emp2.setDaysAvailable(Sets.newHashSet(DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY));
         emp3.setDaysAvailable(Sets.newHashSet(DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY));
 
+        //overwrite employee skill set to provide variety
         emp1.setSkills(Sets.newHashSet(EmployeeSkill.FEEDING, EmployeeSkill.PETTING));
         emp2.setSkills(Sets.newHashSet(EmployeeSkill.PETTING, EmployeeSkill.WALKING));
         emp3.setSkills(Sets.newHashSet(EmployeeSkill.WALKING, EmployeeSkill.SHAVING));
 
+        //save employees to DB
         EmployeeDTO emp1n = userController.saveEmployee(emp1);
         EmployeeDTO emp2n = userController.saveEmployee(emp2);
         EmployeeDTO emp3n = userController.saveEmployee(emp3);
 
         //make a request that matches employee 1 or 2
+        //requires an employee with PETTING skills that is available on a Wednesday
+        //employee 1 & 2 are available on Wednesdays, and both have petting skills
         EmployeeRequestDTO er1 = new EmployeeRequestDTO();
         er1.setDate(LocalDate.of(2019, 12, 25)); //wednesday
         er1.setSkills(Sets.newHashSet(EmployeeSkill.PETTING));
@@ -164,6 +174,7 @@ public class CritterFunctionalTest {
         Assertions.assertEquals(eIds1, eIds1expected);
 
         //make a request that matches only employee 3
+        //employee 2 & 3 are available on Fridays, employee 2 has shaving skills and employee 3 has walking & shaving skills
         EmployeeRequestDTO er2 = new EmployeeRequestDTO();
         er2.setDate(LocalDate.of(2019, 12, 27)); //friday
         er2.setSkills(Sets.newHashSet(EmployeeSkill.WALKING, EmployeeSkill.SHAVING));

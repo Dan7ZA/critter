@@ -88,9 +88,10 @@ public class UserController {
     }
 
     @GetMapping("/employee/availability")
-    public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeDTO) {
-        //Create list of requested skills
-        Set<EmployeeSkill> requestedSkills = employeeDTO.getSkills();
+    public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeRequestDTO) {
+
+        /*//Create list of requested skills
+        Set<EmployeeSkill> requestedSkills = employeeRequestDTO.getSkills();
         //Initialise list of employees
         List<Employee> employeeListSkills = new ArrayList<>();
 
@@ -100,10 +101,10 @@ public class UserController {
         //Remove duplicates caused by employee having more than one of the request skills
         Set<Employee> set = new HashSet<>(employeeListSkills);
         employeeListSkills.clear();
-        employeeListSkills.addAll(set);
+        employeeListSkills.addAll(
 
         //Get requested date
-        LocalDate requestedDate = employeeDTO.getDate();
+        LocalDate requestedDate = employeeRequestDTO.getDate();
         //Get day of requested date
         DayOfWeek requestedDay = requestedDate.getDayOfWeek();
 
@@ -124,7 +125,13 @@ public class UserController {
                 .map(UserController::convertEmployeeToEmployeeDTO)
                 .collect(Collectors.toList());
 
-        return employeeDTOList;
+        return employeeDTOList;*/
+
+        List<Employee> employees = employeeService.getEmployeesForService(employeeRequestDTO.getDate().getDayOfWeek(), employeeRequestDTO.getSkills());
+
+        return employees.stream().map(employee -> convertEmployeeToEmployeeDTO(employee)).collect(Collectors.toList());
+
+
     }
 
     //helper methods

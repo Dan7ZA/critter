@@ -25,7 +25,9 @@ public class PetService {
 
     public Pet savePet(Pet pet){
         Pet returnedPet = petRepository.save(pet);
-        customerService.addPetToCustomer(pet,pet.getCustomer());
+        if (pet.getCustomer() != null) {
+            customerService.addPetToCustomer(pet, pet.getCustomer());
+        }
         return returnedPet;
     }
 
